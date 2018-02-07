@@ -11,8 +11,8 @@ export const AWS_ENV = {
   region: 'us-east-1',
   s3: {
     apiVersion: 'YOUR_VERSION',
-    Bucket: 's3-seon-test',
-    AccessKeyId : 'AKIAIB44VENGBH6XPBFQ',
-    SecretAccessKey : 'lRnvDGTZtQJC1+0YGB5T0dFDSQY97kOcN70CKpiD'
+    Bucket: '',
+    AccessKeyId : '',
+    SecretAccessKey : ''
   },
 };
