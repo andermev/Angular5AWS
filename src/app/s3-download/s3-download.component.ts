@@ -22,12 +22,7 @@ export class S3DownloadComponent implements OnInit {
    */
   constructor(private s3Service: S3Service)
   {
-    this.s3Service.initialize()
-      .subscribe((res: boolean) => {
-        if (! res) {
-          console.log('S3 cognito init error');
-        }
-      });
+    this.download();
   }
 
 
@@ -47,11 +42,12 @@ export class S3DownloadComponent implements OnInit {
   /**
    * @desc file upload
    */
-  public upload(event: Event): void
+  public download(): void
   {
     this.httpUploadProgress.ratio = 0;
     this.httpUploadProgress.style.width = '0';
-    this.s3Service.onManagedUpload((<HTMLInputElement>event.target).files[0]);
+    let filename = 'mov_bbb.mp4';
+    this.s3Service.onManagedDownload(filename);
   }
 
 }

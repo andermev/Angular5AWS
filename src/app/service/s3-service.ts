@@ -6,15 +6,18 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 import * as AWS from 'aws-sdk';
 import { AWS_ENV } from '../../environments/environment';
+import {DomSanitizer} from '@angular/platform-browser';
 
 @Injectable()
 export class S3Service
 {
-  private s3: AWS.S3;
+  private bucket: AWS.S3;
   public progress: EventEmitter<AWS.S3.ManagedUpload.Progress> = new EventEmitter<AWS.S3.ManagedUpload.Progress>();
+  public cameraSrc;
+  private sanitizer: DomSanitizer;
 
-
-  constructor(private http: HttpClient) { }
+  constructor(sanitizer: DomSanitizer) {
+  }
 
 
   /**
@@ -22,41 +25,20 @@ export class S3Service
    * 
    * @return string IdentityId: ex) ap-northeast-1:01234567-9abc-df01-2345-6789abcd
    */
-  public initialize(): Observable<boolean>
+  public initialize(): void
   {
-    // return this.http.get('/assets/cognito.php')
-    //   .map((res: any) => {
-        // res
-        // ...
-
-        // Amazon Cognito
-        AWS.config.region = AWS_ENV.region;
-        // AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-        //   IdentityId: res.results[0].IdentityId,
-        // });
-        this.s3 = new AWS.S3({
-          params: {Bucket: AWS_ENV.s3.Bucket},
-          accessKeyId : AWS_ENV.s3.AccessKeyId,
-          secretAccessKey : AWS_ENV.s3.SecretAccessKey
-        });
-        return Observable.of(true);
-      // })
-
-      // .catch((err: HttpErrorResponse) => {
-      //   console.error(err);
-      //   return Observable.of(false);
-      // });
   }
 
   /**
    * @desc AWS.S3
    */
-  public onManagedUpload(file: File): Promise<AWS.S3.ManagedUpload.SendData>
+  public onManagedUpload(file: File): void
   {
     let params: AWS.S3.Types.PutObjectRequest = {
       Bucket: AWS_ENV.s3.Bucket,
       Key: file.name,
-      Body: file
+      Body: file,
+      ContentType: file.type
     };
     let options: AWS.S3.ManagedUpload.ManagedUploadOptions = {
       params: params,
@@ -70,16 +52,10 @@ export class S3Service
         secretAccessKey: AWS_ENV.s3.SecretAccessKey
       }
     });
-    let params = {Key: file.name, ContentType: file.type, Body: file};
     bucket.putObject(params, function (err, data) {
       let a = data;
       // $('#results').html(err ? 'ERROR!' : 'UPLOADED.');
     });
-
-    // let handler: AWS.S3.ManagedUpload = new AWS.S3.ManagedUpload(options);
-    // handler.on('httpUploadProgress', this._httpUploadProgress.bind(this));
-    // handler.send(this._send.bind(this));
-    // return handler.promise();
   }
 
   /**
@@ -96,5 +72,42 @@ export class S3Service
   private _send(err: AWS.AWSError, data: AWS.S3.ManagedUpload.SendData): void
   {
     console.log('send()', err, data);
+  }
+
+  /**
+   * @desc AWS.S3
+   */
+  public onManagedDownload(filename: string)
+  {
+
+    let params: AWS.S3.Types.GetObjectRequest = {
+      Bucket: AWS_ENV.s3.Bucket,
+      Key: filename
+    };
+    let options: AWS.S3.ManagedUpload.ManagedUploadOptions = {
+      params: params,
+      partSize: 64*1024*1024,
+    };
+
+    let bucket = new AWS.S3({params: params});
+    bucket.config.update({
+      credentials: {
+        accessKeyId: AWS_ENV.s3.AccessKeyId,
+        secretAccessKey: AWS_ENV.s3.SecretAccessKey
+      }
+    });
+    
+    bucket.getObject(params, function (err, data) {
+      let content = new Blob([new Uint8Array(data.Body)], { type: data.ContentType });
+      // let url = (window.URL).createObjectURL(content);
+      let url = this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(content));
+      this.cameraSrc = url;
+      // $('#results').html(err ? 'ERROR!' : 'UPLOADED.');
+    });
+
+    // let handler: AWS.S3.ManagedUpload = new AWS.S3.ManagedUpload(options);
+    // handler.on('httpUploadProgress', this._httpUploadProgress.bind(this));
+    // handler.send(this._send.bind(this));
+    // return handler.promise();
   }
 }

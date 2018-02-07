@@ -22,12 +22,12 @@ export class S3UploadComponent implements OnInit {
    */
   constructor(private s3Service: S3Service)
   {
-    this.s3Service.initialize()
-      .subscribe((res: boolean) => {
-        if (! res) {
-          console.log('S3 cognito init error');
-        }
-      });
+    // this.s3Service.initialize()
+    //   .subscribe((res: boolean) => {
+    //     if (! res) {
+    //       console.log('S3 cognito init error');
+    //     }
+    //   });
   }
 
 
