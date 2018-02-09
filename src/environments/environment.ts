@@ -14,5 +14,5 @@ export const AWS_ENV = {
     Bucket: '',
     AccessKeyId : '',
     SecretAccessKey : ''
-  },
+  }
 };

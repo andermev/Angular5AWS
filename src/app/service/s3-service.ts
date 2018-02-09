@@ -98,10 +98,29 @@ export class S3Service
     });
     
     bucket.getObject(params, function (err, data) {
-      let content = new Blob([new Uint8Array(data.Body)], { type: data.ContentType });
-      // let url = (window.URL).createObjectURL(content);
-      let url = this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(content));
+
+      // let base64Data: string = data.Body.split(",")[1];
+      // let data: any = window.atob(base64Data);
+      // let buff: any = new ArrayBuffer(data.Body);
+      // let arr: any = new Uint8Array(buff);
+
+      const blob = new Blob([data.Body], { type: data.ContentType });
+      const url = window.URL.createObjectURL(blob);
+      // const linkElement = document.createElement('a');
+      // linkElement.download = data.Key;
+      // linkElement.href = url;
       this.cameraSrc = url;
+      // linkElement.click();
+      // window.URL.revokeObjectURL(url);
+
+      // let content = new Blob([new Uint8Array(data.Body)], { type: data.ContentType });
+      // // let url = (window.URL).createObjectURL(content);
+      // let data: any = window.atob(data.Body);
+      // let buff: any = new ArrayBuffer(data.length);
+      // let arr: any = new Uint8Array(buff);
+
+      // let url = window.URL.createObjectURL(content);
+      // this.cameraSrc = url;
       // $('#results').html(err ? 'ERROR!' : 'UPLOADED.');
     });
 
